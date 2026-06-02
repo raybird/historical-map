@@ -1,0 +1,21 @@
+import { createAction, props } from '@ngrx/store';
+import { TimelinePeriod } from '../../models/timeline.model';
+
+export const setCurrentPeriod = createAction(
+  '[Timeline] Set Current Period',
+  props<{ periodId: string | null }>()
+);
+
+export const loadTimelinePeriods = createAction(
+  '[Timeline] Load Periods'
+);
+
+export const loadTimelinePeriodsSuccess = createAction(
+  '[Timeline] Load Periods Success',
+  props<{ periods: TimelinePeriod[] }>()
+);
+
+export const loadTimelinePeriodsFailure = createAction(
+  '[Timeline] Load Periods Failure',
+  props<{ error: string }>()
+);

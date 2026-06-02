@@ -1,0 +1,40 @@
+import { createReducer, on } from '@ngrx/store';
+import { setMapEvents, selectEvent, clearSelectedEvent, toggleMapLayer } from '../actions/map.actions';
+import { HistoricalEvent } from '../../models/event.model';
+
+export interface MapState {
+  events: HistoricalEvent[];
+  selectedEventId: string | null;
+  activeLayers: string[];
+}
+
+export const initialMapState: MapState = {
+  events: [],
+  selectedEventId: null,
+  activeLayers: ['歷史', '地理', '公民']
+};
+
+export const mapReducer = createReducer(
+  initialMapState,
+  on(setMapEvents, (state, { events }) => ({
+    ...state,
+    events
+  })),
+  on(selectEvent, (state, { eventId }) => ({
+    ...state,
+    selectedEventId: eventId
+  })),
+  on(clearSelectedEvent, state => ({
+    ...state,
+    selectedEventId: null
+  })),
+  on(toggleMapLayer, (state, { layerId }) => {
+    const isActive = state.activeLayers.includes(layerId);
+    return {
+      ...state,
+      activeLayers: isActive
+        ? state.activeLayers.filter(id => id !== layerId)
+        : [...state.activeLayers, layerId]
+    };
+  })
+);
