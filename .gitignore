@@ -1,0 +1,8 @@
+node_modules/
+schematics/src/**/*.js
+schematics/src/**/*.d.ts
+schematics/src/**/*.js.map
+example-app/.angular/
+example-app/dist/
+*.log
+.tmp-verify/

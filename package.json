@@ -1,0 +1,11 @@
+{
+  "name": "historical-map-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build:schematics": "tsc -p schematics/tsconfig.json && npm run copy:templates",
+    "copy:templates": "node schematics/scripts/copy-templates.mjs",
+    "test:schematics": "npm run build:schematics && jasmine --config=schematics/jasmine.json",
+    "verify": "node scripts/verify-ng-add.mjs"
+  }
+}
