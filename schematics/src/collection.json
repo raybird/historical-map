@@ -1,0 +1,25 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "ng-add": {
+      "description": "Scaffold a complete interactive historical map app",
+      "factory": "./ng-add/index#ngAdd",
+      "schema": "./ng-add/schema.json"
+    },
+    "add-event": {
+      "description": "Add a historical event to events.json",
+      "factory": "./add-event/index#addEvent",
+      "schema": "./add-event/schema.json"
+    },
+    "add-period": {
+      "description": "Add a timeline period to timeline.json",
+      "factory": "./add-period/index#addPeriod",
+      "schema": "./add-period/schema.json"
+    },
+    "add-extension-field": {
+      "description": "Add an extension field to the HistoricalEvent interface",
+      "factory": "./add-extension-field/index#addExtensionField",
+      "schema": "./add-extension-field/schema.json"
+    }
+  }
+}

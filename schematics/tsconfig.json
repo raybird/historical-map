@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": ["es2022", "dom"],
+    "declaration": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2022",
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "rootDir": "src",
+    "outDir": "src",
+    "types": ["jasmine", "node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*_spec.ts", "src/**/files/**"]
+}
