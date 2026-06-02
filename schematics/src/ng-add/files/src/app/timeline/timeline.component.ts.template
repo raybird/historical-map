@@ -1,0 +1,238 @@
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, HostListener } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { AppState } from '../store/app.state';
+import * as TimelineActions from '../store/actions/timeline.actions';
+import * as EventActions from '../store/actions/event.actions';
+import * as MapActions from '../store/actions/map.actions';
+import { selectPeriods, selectCurrentPeriodId, selectTimelineLoading, selectTimelineError } from '../store/selectors/timeline.selectors';
+import { selectEvents, selectSelectedEvent } from '../store/selectors/event.selectors';
+import { selectMapEvents } from '../store/selectors/map.selectors';
+import { Subscription, Observable, combineLatest } from 'rxjs';
+import { map, tap, first, filter } from 'rxjs/operators';
+import { historicalMapConfig } from '../historical-map.config';
+
+@Component({
+  selector: 'app-timeline',
+  templateUrl: './timeline.component.html',
+  styleUrls: ['./timeline.component.css'],
+  standalone: true,
+  imports: [AsyncPipe],
+})
+export class TimelineComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
+
+  periods$!: Observable<any[]>;
+  currentPeriodId$!: Observable<string | null>;
+  loading$!: Observable<boolean>;
+  error$!: Observable<string | null>;
+  events$!: Observable<any[]>;
+
+  minYear = historicalMapConfig.timeline.minYear;
+  maxYear = historicalMapConfig.timeline.maxYear;
+  pixelsPerYear = historicalMapConfig.timeline.pixelsPerYear;
+  readonly trackPadding = 200;
+  trackWidth = (this.maxYear - this.minYear) * this.pixelsPerYear + this.trackPadding * 2;
+
+  yearTicks: { year: number; label: string; major: boolean }[] = [];
+  currentCenterYear = 0;
+
+  private subscriptions: Subscription[] = [];
+
+  isDragging = false;
+  private dragStartX = 0;
+  private dragScrollLeft = 0;
+  private hasDragged = false;
+  private readonly DRAG_THRESHOLD = 5;
+  private touchStartX = 0;
+  private currentEvents: any[] = [];
+  private currentSelectedEventId: string | null = null;
+
+  constructor(
+    private store: Store<AppState>,
+  ) {
+    this.generateYearTicks();
+  }
+
+  ngOnInit(): void {
+    this.periods$ = this.store.select(selectPeriods);
+    this.currentPeriodId$ = this.store.select(selectCurrentPeriodId);
+    this.loading$ = this.store.select(selectTimelineLoading);
+    this.error$ = this.store.select(selectTimelineError);
+
+    this.events$ = combineLatest([
+      this.store.select(selectEvents),
+      this.store.select(selectCurrentPeriodId)
+    ]).pipe(
+      map(([events, periodId]) => {
+        if (!events) return [];
+        return !periodId
+          ? events
+          : events.filter((e: any) => e.date?.periodId === periodId || !e.date?.periodId);
+      }),
+      tap(filtered => {
+        this.store.dispatch(MapActions.setMapEvents({ events: filtered }));
+      })
+    );
+
+    const mapEventsSub = this.store.select(selectMapEvents).subscribe(events => {
+      this.currentEvents = events;
+    });
+    this.subscriptions.push(mapEventsSub);
+
+    const selectedIdSub = this.store.select(selectSelectedEvent).subscribe(event => {
+      this.currentSelectedEventId = event?.id ?? null;
+    });
+    this.subscriptions.push(selectedIdSub);
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.onScroll();
+    }, 100);
+
+    const selectedSub = this.store.select(selectSelectedEvent).pipe(
+      filter(event => !!event)
+    ).subscribe(event => {
+      this.scrollToEvent(event);
+    });
+    this.subscriptions.push(selectedSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  getPixelPosition(year: number): number {
+    return this.trackPadding + (year - this.minYear) * this.pixelsPerYear;
+  }
+
+  scrollToEvent(event: any): void {
+    if (!this.scrollContainer?.nativeElement) return;
+    const year = this.getEventYear(event);
+    const pixelPos = this.getPixelPosition(year);
+    const containerWidth = this.scrollContainer.nativeElement.clientWidth;
+    const targetScroll = pixelPos - containerWidth / 2;
+    this.scrollContainer.nativeElement.scrollTo({
+      left: Math.max(0, targetScroll),
+      behavior: 'smooth'
+    });
+  }
+
+  getPixelWidth(startYear: number, endYear: number): number {
+    return Math.max(40, (endYear - startYear) * this.pixelsPerYear);
+  }
+
+  getEventYear(event: any): number {
+    const dateStr: string | undefined = event.date?.start;
+    if (!dateStr) return this.minYear;
+    if (dateStr.startsWith('-')) {
+      const year = parseInt(dateStr.substring(1).split('-')[0], 10);
+      return isNaN(year) ? this.minYear : Math.max(-year, this.minYear);
+    }
+    const year = parseInt(dateStr.split('-')[0], 10);
+    return isNaN(year) ? this.minYear : year;
+  }
+
+  getEventColor(event: any): string {
+    const cats: string[] = event.categories ?? [];
+    if (cats.includes('地理')) return '#3a87bc';
+    if (cats.includes('公民')) return '#5a9a3a';
+    return '#c41e3a';
+  }
+
+  onPeriodChange(periodId: string): void {
+    this.store.dispatch(TimelineActions.setCurrentPeriod({ periodId }));
+  }
+
+  onEventClick(eventItem: any): void {
+    if (this.hasDragged) { this.hasDragged = false; return; }
+    this.store.dispatch(EventActions.selectEvent({ eventId: eventItem.id }));
+    this.store.dispatch(MapActions.selectEvent({ eventId: eventItem.id }));
+  }
+
+  onPeriodClick(period: any): void {
+    if (this.hasDragged) { this.hasDragged = false; return; }
+    this.currentPeriodId$.pipe(first()).subscribe(currentId => {
+      const periodId = currentId === period.id ? null : period.id;
+      this.store.dispatch(TimelineActions.setCurrentPeriod({ periodId }));
+    });
+  }
+
+  onMouseDown(e: MouseEvent): void {
+    this.isDragging = true;
+    this.hasDragged = false;
+    this.dragStartX = e.pageX - this.scrollContainer.nativeElement.offsetLeft;
+    this.dragScrollLeft = this.scrollContainer.nativeElement.scrollLeft;
+  }
+
+  onMouseMove(e: MouseEvent): void {
+    if (!this.isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - this.scrollContainer.nativeElement.offsetLeft;
+    const walk = x - this.dragStartX;
+    if (Math.abs(walk) > this.DRAG_THRESHOLD) this.hasDragged = true;
+    this.scrollContainer.nativeElement.scrollLeft = this.dragScrollLeft - walk;
+  }
+
+  onDragEnd(): void {
+    this.isDragging = false;
+  }
+
+  onTouchStart(e: TouchEvent): void {
+    this.hasDragged = false;
+    this.touchStartX = e.touches[0].clientX;
+  }
+
+  onTouchMove(e: TouchEvent): void {
+    const walk = Math.abs(e.touches[0].clientX - this.touchStartX);
+    if (walk > this.DRAG_THRESHOLD) this.hasDragged = true;
+  }
+
+  onTouchEnd(): void {
+    // hasDragged is consumed by click handler
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(e: KeyboardEvent): void {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    if (!this.currentEvents.length) return;
+    const sorted = [...this.currentEvents].sort((a, b) =>
+      this.getEventYear(a) - this.getEventYear(b));
+    const idx = sorted.findIndex(ev => ev.id === this.currentSelectedEventId);
+    const next = e.key === 'ArrowLeft'
+      ? sorted[idx <= 0 ? sorted.length - 1 : idx - 1]
+      : sorted[idx >= sorted.length - 1 ? 0 : idx + 1];
+    if (next) {
+      this.store.dispatch(EventActions.selectEvent({ eventId: next.id }));
+      this.store.dispatch(MapActions.selectEvent({ eventId: next.id }));
+    }
+  }
+
+  onScroll(): void {
+    if (!this.scrollContainer?.nativeElement) return;
+    const el = this.scrollContainer.nativeElement;
+    this.currentCenterYear = Math.round(
+      this.minYear + (el.scrollLeft + el.clientWidth / 2 - this.trackPadding) / this.pixelsPerYear
+    );
+  }
+
+  getEventStaggerTop(event: any, events: any[]): number {
+    const year = this.getEventYear(event);
+    const bucket = Math.floor(year / 5) * 5;
+    const inBucket = events.filter(e => Math.floor(this.getEventYear(e) / 5) * 5 === bucket);
+    const idx = inBucket.indexOf(event);
+    if (inBucket.length <= 1) return 50;
+    const positions = [30, 70, 15, 85, 50];
+    return positions[idx % positions.length];
+  }
+
+  private generateYearTicks(): void {
+    this.yearTicks = [];
+    for (let year = this.minYear; year <= this.maxYear; year += 100) {
+      const absYear = Math.abs(year);
+      const label = year < 0 ? `前${absYear}` : `${year}`;
+      this.yearTicks.push({ year, label, major: year % 500 === 0 });
+    }
+  }
+}

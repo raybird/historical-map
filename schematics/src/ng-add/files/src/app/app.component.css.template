@@ -1,0 +1,114 @@
+.app-viewport {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: #f4e4bc;
+}
+
+.map-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.ui-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(210, 190, 160, 0.2);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+  pointer-events: auto;
+  border-radius: 8px;
+}
+
+.top-overlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 300;
+  pointer-events: none;
+
+  .top-bar {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
+  }
+}
+
+.bottom-overlay {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  height: 96px;
+  z-index: 200;
+  pointer-events: auto !important;
+
+  app-timeline {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    overflow: visible;
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(210, 190, 160, 0.2);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .bottom-overlay {
+    bottom: 16px;
+    left: 12px;
+    right: 12px;
+    height: 95px;
+  }
+}
+
+@media (max-width: 768px) {
+  .top-overlay {
+    top: 12px;
+  }
+  .bottom-overlay {
+    bottom: 24px;
+    height: 110px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bottom-overlay {
+    height: 115px;
+    left: 12px;
+    right: 12px;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+  }
+}

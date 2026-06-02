@@ -1,0 +1,175 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import * as L from 'leaflet';
+import { Store } from '@ngrx/store';
+import { AppState } from '../store/app.state';
+import { selectEvent } from '../store/actions/map.actions';
+import * as EventActions from '../store/actions/event.actions';
+import { selectMapEvents, selectSelectedEventId, selectMapActiveLayers } from '../store/selectors/map.selectors';
+import { Subscription } from 'rxjs';
+import { historicalMapConfig } from '../historical-map.config';
+
+@Component({
+  selector: 'app-map-container',
+  templateUrl: './map-container.component.html',
+  styleUrls: ['./map-container.component.css'],
+  standalone: true,
+  imports: [],
+})
+export class MapContainerComponent implements OnInit, OnDestroy {
+  private map!: L.Map;
+  private markers: L.LayerGroup = L.layerGroup();
+  private selectedLayer: L.Layer | null = null;
+  private currentSelectedEventId: string | null = null;
+  private currentEvents: any[] = [];
+  private activeLayers: string[] = ['歷史', '地理', '公民'];
+  private eventSubscriptions: Subscription[] = [];
+
+  constructor(private store: Store<AppState>) {}
+
+  ngOnInit(): void {
+    this.initMap();
+    this.setupEventListeners();
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove();
+    }
+    this.eventSubscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private initMap(): void {
+    this.map = L.map('map', {
+      zoomControl: false,
+      attributionControl: false
+    }).setView(historicalMapConfig.map.center, historicalMapConfig.map.zoom);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      className: 'old-maps-layer'
+    }).addTo(this.map);
+
+    this.map.addLayer(this.markers);
+  }
+
+  private setupEventListeners(): void {
+    const eventsSub = this.store.select(selectMapEvents).subscribe(events => {
+      this.updateEventMarkers(events);
+    });
+    this.eventSubscriptions.push(eventsSub);
+
+    const selectedEventSub = this.store.select(selectSelectedEventId).subscribe(eventId => {
+      this.currentSelectedEventId = eventId;
+      this.highlightMarker(eventId);
+    });
+    this.eventSubscriptions.push(selectedEventSub);
+
+    const layersSub = this.store.select(selectMapActiveLayers).subscribe(layers => {
+      this.activeLayers = layers;
+      this.updateEventMarkers(this.currentEvents);
+    });
+    this.eventSubscriptions.push(layersSub);
+  }
+
+  private getCategoryColor(categories: string[]): string {
+    if (categories.includes('地理')) return '#3a87bc';
+    if (categories.includes('公民')) return '#5a9a3a';
+    return '#c41e3a';
+  }
+
+  private createInkIcon(color: string = '#c41e3a', size: number = 26): L.DivIcon {
+    return L.divIcon({
+      className: 'ink-marker',
+      html: `<div class="ink-marker-inner" style="width:${size}px;height:${size}px;">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" fill="${color}" opacity="0.85"/>
+          <circle cx="12" cy="12" r="6" fill="${color}" opacity="0.4"/>
+          <circle cx="12" cy="12" r="2.5" fill="#2c241b" opacity="0.9"/>
+        </svg>
+      </div>`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+      popupAnchor: [0, -size / 2]
+    });
+  }
+
+  private updateEventMarkers(events: any[]): void {
+    this.currentEvents = events;
+    this.markers.clearLayers();
+    this.selectedLayer = null;
+
+    const visibleEvents = events.filter(event =>
+      !event.categories?.length ||
+      event.categories.some((cat: string) => this.activeLayers.includes(cat))
+    );
+
+    visibleEvents.forEach(event => {
+      if (event.location && event.location.coordinates) {
+        const [lat, lng] = event.location.coordinates;
+        const color = this.getCategoryColor(event.categories ?? []);
+        const marker = L.marker([lat, lng], { icon: this.createInkIcon(color) });
+        (marker as any)._eventId = event.id;
+        (marker as any)._coords = [lat, lng];
+
+        const popupContent = `<div class="marker-popup">
+          <h3>${event.title}</h3>
+          <p>${event.date?.start || ''} ${event.location?.name || ''}</p>
+        </div>`;
+        marker.bindPopup(popupContent);
+
+        marker.on('click', () => {
+          this.store.dispatch(selectEvent({ eventId: event.id }));
+          this.store.dispatch(EventActions.selectEvent({ eventId: event.id }));
+        });
+
+        this.markers.addLayer(marker);
+      }
+    });
+
+    this.highlightMarker(this.currentSelectedEventId);
+  }
+
+  private highlightMarker(eventId: string | null): void {
+    this.markers.eachLayer((layer: L.Layer) => {
+      const el = (layer as any).getElement?.();
+      if (el) {
+        el.classList.remove('selected-marker');
+        el.classList.remove('dimmed-marker');
+      }
+    });
+    this.selectedLayer = null;
+
+    if (!eventId) return;
+
+    this.markers.eachLayer((layer: L.Layer) => {
+      const el = (layer as any).getElement?.();
+      if (!el) return;
+      if ((layer as any)._eventId === eventId) {
+        el.classList.add('selected-marker');
+        this.selectedLayer = layer;
+        const coords = (layer as any)._coords;
+        if (coords) {
+          const targetZoom = Math.max(this.map.getZoom(), 11);
+          const isMobile = window.innerWidth <= 480;
+          let flyTarget: [number, number] = coords;
+          if (isMobile) {
+            const offsetPx = window.innerHeight * 0.62 / 2;
+            const pt = this.map.project(L.latLng(coords[0], coords[1]), targetZoom);
+            const adjusted = this.map.unproject(L.point(pt.x, pt.y + offsetPx), targetZoom);
+            flyTarget = [adjusted.lat, adjusted.lng];
+          }
+          this.map.once('moveend', () => {
+            (layer as L.Marker).openPopup();
+          });
+          this.map.flyTo(flyTarget, targetZoom, { animate: true, duration: 0.8 });
+        } else {
+          (layer as L.Marker).openPopup();
+        }
+      } else {
+        el.classList.add('dimmed-marker');
+      }
+    });
+  }
+}

@@ -1,0 +1,41 @@
+import { Component, OnInit } from '@angular/core';
+import { EventService } from './services/event.service';
+import { TimelineService } from './services/timeline.service';
+import { MapContainerComponent } from './map-container/map-container.component';
+import { TimelineComponent } from './timeline/timeline.component';
+import { EventSidebarComponent } from './event-sidebar/event-sidebar.component';
+import { SearchBarComponent } from './search-bar/search-bar.component';
+import { LayerControlComponent } from './layer-control/layer-control.component';
+import { historicalMapConfig } from './historical-map.config';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    MapContainerComponent,
+    TimelineComponent,
+    EventSidebarComponent,
+    SearchBarComponent,
+    LayerControlComponent,
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {
+  title = historicalMapConfig.appTitle;
+  showExamMode = false;
+
+  constructor(
+    private eventService: EventService,
+    private timelineService: TimelineService
+  ) {}
+
+  ngOnInit(): void {
+    this.eventService.loadEvents();
+    this.timelineService.loadTimelinePeriods();
+  }
+
+  toggleExamMode(): void {
+    this.showExamMode = !this.showExamMode;
+  }
+}

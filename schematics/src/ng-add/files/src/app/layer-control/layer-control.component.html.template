@@ -1,0 +1,27 @@
+<div class="layer-toggle" (click)="togglePanel()" [class.active]="isOpen" title="圖層控制">
+  <span class="layer-icon">🗺</span>
+</div>
+
+@if (isOpen) {
+  <div class="layer-panel" [class.open]="isOpen">
+    <div class="panel-header">
+      <h4>地圖圖層</h4>
+      <button class="close-btn" (click)="togglePanel()">×</button>
+    </div>
+    <div class="panel-body">
+      @if (activeLayers$ | async; as activeLayers) {
+        @for (layer of availableLayers; track layer.id) {
+          <div class="layer-item">
+            <label class="layer-label">
+              <input type="checkbox"
+                     [checked]="activeLayers.includes(layer.id)"
+                     (change)="toggleLayer(layer.id)">
+              <span class="layer-dot" [style.background-color]="layer.color"></span>
+              <span class="layer-name">{{ layer.name }}</span>
+            </label>
+          </div>
+        }
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,260 @@
+.timeline-wrapper {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  padding: 0;
+  position: relative;
+  z-index: 200;
+  pointer-events: auto !important;
+}
+
+.center-needle {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 12px;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(200, 164, 39, 0.55) 12%,
+    rgba(200, 164, 39, 0.55) 85%,
+    transparent 100%
+  );
+  z-index: 25;
+  pointer-events: none;
+}
+
+.needle-year-bubble {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(235, 195, 85, 0.98), rgba(200, 164, 39, 0.98));
+  color: #2c241b;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  border: 1px solid #fff;
+  font-family: var(--font-heading, serif);
+  z-index: 30;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 0px rgba(255, 255, 255, 0.4);
+}
+
+.center-needle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 7px solid rgba(200, 164, 39, 0.8);
+}
+
+.timeline-container {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  cursor: grab;
+  pointer-events: auto !important;
+  user-select: none;
+  box-sizing: border-box;
+  padding-bottom: 16px;
+}
+
+.timeline-container.dragging {
+  cursor: grabbing;
+}
+
+.timeline-container::-webkit-scrollbar {
+  height: 10px;
+}
+
+.timeline-container::-webkit-scrollbar-track {
+  background: rgba(44, 36, 27, 0.08);
+  border-radius: 3px;
+  margin: 0 4px;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(139, 115, 85, 0.5) 0%,
+    rgba(139, 115, 85, 0.5) 30%,
+    rgba(175, 148, 108, 0.7) 45%,
+    rgba(200, 164, 39, 0.75) 50%,
+    rgba(175, 148, 108, 0.7) 55%,
+    rgba(139, 115, 85, 0.5) 70%,
+    rgba(139, 115, 85, 0.5) 100%
+  );
+  border: 1px solid rgba(200, 164, 39, 0.3);
+}
+
+.timeline-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(139, 115, 85, 0.7) 0%,
+    rgba(200, 164, 39, 0.9) 50%,
+    rgba(139, 115, 85, 0.7) 100%
+  );
+  border-color: rgba(200, 164, 39, 0.6);
+}
+
+.timeline-track {
+  position: relative;
+  height: 100%;
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dynasty-bands {
+  position: relative;
+  width: 100%;
+  height: 28px;
+  z-index: 5;
+  margin-bottom: 4px;
+}
+
+.dynasty-band {
+  position: absolute;
+  top: 4px;
+  height: calc(100% - 8px);
+  opacity: 0.6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  overflow: visible;
+}
+
+.dynasty-band:hover {
+  opacity: 0.95;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  transform: scaleY(1.05);
+}
+
+.dynasty-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: rgba(44, 36, 27, 0.98);
+  white-space: nowrap;
+  letter-spacing: 0.8px;
+  pointer-events: none;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.dynasty-years {
+  font-weight: 400;
+  font-size: 0.68rem;
+  opacity: 0.8;
+  margin-left: 4px;
+  display: inline-block;
+}
+
+.event-dots {
+  position: relative;
+  width: 100%;
+  height: 36px;
+  z-index: 15;
+  margin-top: 2px;
+  overflow: visible;
+}
+
+.event-dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  opacity: 0.9;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.event-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.event-dot:hover {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+  z-index: 20;
+}
+
+.year-ticks {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  z-index: 10;
+}
+
+.year-tick {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.year-tick::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 6px;
+  background: rgba(44, 36, 27, 0.15);
+}
+
+.year-tick.major-tick::after {
+  height: 10px;
+  width: 1.5px;
+  background: rgba(44, 36, 27, 0.35);
+}
+
+.year-label {
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.82rem;
+  color: rgba(44, 36, 27, 0.95);
+  white-space: nowrap;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 768px) {
+  .dynasty-bands { height: 32px; }
+  .event-dots { margin-top: 10px; }
+  .dynasty-label { font-size: 0.85rem; font-weight: 700; }
+  .year-label { font-size: 0.75rem; font-weight: 700; }
+  .dynasty-years { display: none; }
+}

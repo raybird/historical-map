@@ -1,0 +1,126 @@
+@if (selectedEvent$ | async; as event) {
+  <div class="event-card">
+    <div class="drag-handle"></div>
+    <div class="card-header">
+      <div class="header-left">
+        <div class="dynasty-badge">{{ event.date?.period || '' }}</div>
+        <h3>{{ event.title }}</h3>
+      </div>
+      <button class="close-btn" (click)="closeSidebar()">×</button>
+    </div>
+
+    <div class="card-meta">
+      <span class="year">{{ event.date?.start }} ~ {{ event.date?.end }}</span>
+      <span class="location">{{ event.location?.name }}</span>
+    </div>
+
+    <div class="card-body">
+      <div class="section">
+        <h4>事件描述</h4>
+        <p>{{ event.description }}</p>
+      </div>
+
+      @if (event.categories?.length) {
+        <div class="section">
+          <h4>類別</h4>
+          <div class="tags">
+            @for (cat of event.categories; track cat) {
+              <span class="tag">{{ cat }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (event.keywords?.length) {
+        <div class="section">
+          <h4>關鍵詞</h4>
+          <div class="tags">
+            @for (kw of event.keywords; track kw) {
+              <span class="tag">{{ kw }}</span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (event.examRelevance) {
+        <div class="section exam-section">
+          <h4>考試重點</h4>
+          <div class="exam-item">
+            <span class="exam-label">重要度: </span>
+            <span class="exam-value importance-{{ event.examRelevance.importance }}">
+              {{ event.examRelevance.importance === 'high' ? '★★★★★' : event.examRelevance.importance === 'medium' ? '★★★☆☆' : '★★☆☆☆' }}
+            </span>
+          </div>
+          @if (event.examRelevance.questionTypes?.length) {
+            <div class="exam-item">
+              <span class="exam-label">題型: </span>
+              <span class="exam-value">{{ event.examRelevance.questionTypes.join('、') }}</span>
+            </div>
+          }
+          @if (event.examRelevance.textbookReferences?.length) {
+            <div class="exam-item">
+              <span class="exam-label">教科書對應: </span>
+              <span class="exam-value">{{ event.examRelevance.textbookReferences.join('、') }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      @if (questions.length > 0) {
+        <div class="section quiz-section">
+          <h4>隨堂測驗</h4>
+
+          @for (q of questions; track $index; let qi = $index) {
+            <div class="quiz-question">
+              <p class="quiz-prompt">{{ qi + 1 }}. {{ q.question }}</p>
+              <div class="quiz-options">
+                @for (opt of q.options; track $index; let oi = $index) {
+                  <button
+                    class="quiz-option"
+                    [class.selected]="selectedAnswers[qi] === oi"
+                    [class.correct]="isCorrect(q, oi)"
+                    [class.wrong]="isSelectedWrong(q, qi, oi)"
+                    (click)="selectAnswer(qi, oi)">
+                    {{ opt }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @if (!showResults) {
+            <div class="quiz-footer">
+              <button class="submit-btn" (click)="submitAnswers()"
+                      [disabled]="!allQuestionsAnswered()">
+                提交答案
+              </button>
+            </div>
+          }
+
+          @if (showResults) {
+            <div class="quiz-result">
+              <span class="result-badge" [class.pass]="correctCount === questions.length" [class.fail]="correctCount < questions.length">
+                {{ correctCount }} / {{ questions.length }} 正確
+                {{ correctCount === questions.length ? ' 🎉' : '' }}
+              </span>
+              <button class="retry-btn" (click)="retryQuiz(event)">再試一次</button>
+            </div>
+          }
+        </div>
+      }
+
+      @if (event.relatedEvents?.length) {
+        <div class="section related-section">
+          <h4>相關事件</h4>
+          <div class="related-list">
+            @for (relId of event.relatedEvents; track relId) {
+              <div class="related-item">
+                <span class="rel-title">{{ getEventTitle(relId) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

@@ -1,0 +1,42 @@
+@import 'leaflet/dist/leaflet.css';
+
+:root {
+  --color-bg: #f4e4bc;
+  --color-paper: #f0e6d8;
+  --color-dark: #2c241b;
+  --color-brown: #8b7355;
+  --color-gold: #c8a427;
+  --color-seal: #c41e3a;
+  --color-text: #3d3229;
+  --color-muted: #8c7b70;
+  --color-border: #d4c9b8;
+  --font-heading: 'Noto Serif TC', 'Noto Sans TC', serif;
+  --font-body: 'Noto Sans TC', 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(139, 115, 85, 0.3);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 115, 85, 0.5);
+}

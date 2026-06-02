@@ -1,0 +1,20 @@
+<div class="app-viewport">
+  <div class="map-layer">
+    <app-map-container></app-map-container>
+  </div>
+
+  <div class="ui-layer">
+    <div class="top-overlay">
+      <div class="top-bar">
+        <app-search-bar></app-search-bar>
+      </div>
+    </div>
+
+    <div class="bottom-overlay">
+      <app-timeline></app-timeline>
+    </div>
+  </div>
+
+  <app-event-sidebar></app-event-sidebar>
+  <app-layer-control></app-layer-control>
+</div>

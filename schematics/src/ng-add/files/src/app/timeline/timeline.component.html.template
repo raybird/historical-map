@@ -1,0 +1,69 @@
+<div class="timeline-wrapper">
+  <div class="center-needle">
+    @if (currentCenterYear !== 0) {
+      <div class="needle-year-bubble">
+        {{ currentCenterYear < 0 ? '前 ' + (-currentCenterYear) : currentCenterYear }}
+      </div>
+    }
+  </div>
+
+  <div class="timeline-container" #scrollContainer
+    [class.dragging]="isDragging"
+    (mousedown)="onMouseDown($event)"
+    (mousemove)="onMouseMove($event)"
+    (mouseup)="onDragEnd()"
+    (mouseleave)="onDragEnd()"
+    (touchstart)="onTouchStart($event)"
+    (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()"
+    (scroll)="onScroll()">
+    <div class="timeline-track" [style.width.px]="trackWidth">
+
+      <!-- Dynasty bands -->
+      <div class="dynasty-bands">
+        @if (periods$ | async; as periods) {
+          @for (period of periods; track period.id) {
+            <div class="dynasty-band"
+              [style.left.px]="getPixelPosition(period.startYear)"
+              [style.width.px]="getPixelWidth(period.startYear, period.endYear)"
+              [style.background-color]="period.color"
+              (click)="onPeriodClick(period)">
+              <span class="dynasty-label">
+                {{ period.label }}
+                <span class="dynasty-years">{{ period.startYear }} ~ {{ period.endYear }}</span>
+              </span>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Event dots -->
+      @if (events$ | async; as events) {
+        <div class="event-dots">
+          @for (event of events; track event.id) {
+            <div class="event-dot"
+              [style.left.px]="getPixelPosition(getEventYear(event))"
+              [style.top.%]="getEventStaggerTop(event, events)"
+              [style.background-color]="getEventColor(event)"
+              [title]="event.title"
+              (click)="onEventClick(event)">
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Year ticks -->
+      <div class="year-ticks">
+        @for (tick of yearTicks; track tick.year) {
+          <div class="year-tick"
+            [style.left.px]="getPixelPosition(tick.year)"
+            [class.major-tick]="tick.major">
+            @if (tick.major) {
+              <span class="year-label">{{ tick.label }}</span>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
