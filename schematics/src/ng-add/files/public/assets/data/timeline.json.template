@@ -1,0 +1,5 @@
+[
+  { "id": "ancient", "label": "上古", "startDate": "-3000", "endDate": "-500", "startYear": -3000, "endYear": -500, "color": "#8B7355", "description": "上古時期" },
+  { "id": "classical", "label": "古典", "startDate": "-500", "endDate": "500", "startYear": -500, "endYear": 500, "color": "#4169E1", "description": "古典時期" },
+  { "id": "modern", "label": "近現代", "startDate": "1500", "endDate": "2025", "startYear": 1500, "endYear": 2025, "color": "#2E8B57", "description": "近現代" }
+]

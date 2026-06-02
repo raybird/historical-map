@@ -1,0 +1,47 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+const events = JSON.parse(fs.readFileSync(path.join(root, 'public/assets/data/events.json'), 'utf8'));
+const periods = JSON.parse(fs.readFileSync(path.join(root, 'public/assets/data/timeline.json'), 'utf8'));
+
+const MIN_YEAR = <%= minYear %>;
+const MAX_YEAR = <%= maxYear %>;
+const periodIds = new Set(periods.map((p) => p.id));
+const seen = new Set();
+const errors = [];
+
+function parseYear(s) {
+  if (typeof s !== 'string' || !s) return null;
+  const neg = s.startsWith('-');
+  const n = Number.parseInt((neg ? s.slice(1) : s).split('-')[0], 10);
+  return Number.isNaN(n) ? null : (neg ? -n : n);
+}
+
+for (const e of events) {
+  if (!e.id) { errors.push('event without id'); continue; }
+  if (seen.has(e.id)) errors.push(`duplicate id: ${e.id}`);
+  seen.add(e.id);
+  if (!periodIds.has(e.date?.periodId)) errors.push(`${e.id}: unknown periodId ${e.date?.periodId}`);
+  const y = parseYear(e.date?.start);
+  if (y === null) errors.push(`${e.id}: unparseable start ${e.date?.start}`);
+  else if (y < MIN_YEAR || y > MAX_YEAR) errors.push(`${e.id}: year ${y} outside [${MIN_YEAR}, ${MAX_YEAR}]`);
+  const c = e.location?.coordinates;
+  if (!Array.isArray(c) || c.length !== 2) errors.push(`${e.id}: bad coordinates`);
+  else {
+    if (c[0] < -90 || c[0] > 90) errors.push(`${e.id}: lat out of range ${c[0]}`);
+    if (c[1] < -180 || c[1] > 180) errors.push(`${e.id}: lng out of range ${c[1]}`);
+  }
+}
+for (const e of events) {
+  for (const r of e.relatedEvents ?? []) {
+    if (!seen.has(r)) errors.push(`${e.id}: orphan relatedEvent ${r}`);
+  }
+}
+
+if (errors.length) {
+  console.error(`✗ ${errors.length} validation error(s):`);
+  for (const m of errors) console.error('  - ' + m);
+  process.exit(1);
+}
+console.log(`✓ ${events.length} events, ${periods.length} periods valid`);

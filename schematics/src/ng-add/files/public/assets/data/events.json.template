@@ -1,0 +1,20 @@
+[
+  {
+    "id": "demo-001", "title": "範例事件一", "description": "這是展示用事件，請用 ng generate add-event 取代或補充。",
+    "date": { "start": "-1200", "end": "-1200", "period": "上古", "periodId": "ancient" },
+    "location": { "name": "雅典", "coordinates": [37.98, 23.73], "adminDivisions": [] },
+    "categories": ["政治"], "keywords": ["範例", "上古"], "relatedEvents": ["demo-002"]
+  },
+  {
+    "id": "demo-002", "title": "範例事件二", "description": "第二筆展示事件。",
+    "date": { "start": "100", "end": "100", "period": "古典", "periodId": "classical" },
+    "location": { "name": "羅馬", "coordinates": [41.9, 12.5], "adminDivisions": [] },
+    "categories": ["軍事"], "keywords": ["範例", "古典"], "relatedEvents": ["demo-001"]
+  },
+  {
+    "id": "demo-003", "title": "範例事件三", "description": "第三筆展示事件。",
+    "date": { "start": "1789", "end": "1789", "period": "近現代", "periodId": "modern" },
+    "location": { "name": "巴黎", "coordinates": [48.85, 2.35], "adminDivisions": [] },
+    "categories": ["政治"], "keywords": ["範例", "近現代"], "relatedEvents": []
+  }
+]

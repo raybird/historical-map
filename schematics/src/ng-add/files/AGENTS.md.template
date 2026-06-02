@@ -1,0 +1,39 @@
+# AGENTS.md — <%= appTitle %>
+
+本專案由 historical-map-schematics 產生。資料驅動：事件與分期分別存於
+`public/assets/data/events.json` 與 `timeline.json`。
+
+## 資料 schema
+- **事件**：`id`(唯一), `title`, `description`, `date{start,end,period,periodId}`,
+  `location{name,coordinates:[lat,lng],adminDivisions[]}`, `categories[]`,
+  `keywords[]`, `relatedEvents[]`，加上專案延伸欄位（見 `src/app/models/event.model.ts`）。
+- **分期**：`id`(唯一), `label`, `startDate`, `endDate`, `startYear`, `endYear`,
+  `color`(hex), `description`。
+
+## 驗證規則
+- event id / period id 不可重複
+- `date.periodId` 必須對應存在的分期
+- 座標 lat∈[-90,90]、lng∈[-180,180]
+- `start` 年份須落在設定的 `[minYear, maxYear]`（見 `src/app/historical-map.config.ts`）
+- `relatedEvents` 不可指向不存在的事件
+
+## 用產生器安全寫入（人/agent 共用）
+
+```bash
+# 新增分期（非互動，供 agent 批次）
+ng generate @kevin/historical-map-schematics:add-period \
+  --id=ming --label=明朝 --startYear=1368 --endYear=1644 --color=#C8102E --description="明朝" --interactive=false
+
+# 新增事件（非互動）
+ng generate @kevin/historical-map-schematics:add-event \
+  --id=ming-001 --title=靖難之役 --description=... --start=1399 --end=1402 \
+  --period=明朝 --periodId=ming --locationName=南京 --lat=32.06 --lng=118.80 \
+  --categories=軍事,政治 --keywords=朱棣,建文帝 --interactive=false
+```
+
+## 換主題 SOP（把展示種子換成指定主題）
+1. 調整 `src/app/historical-map.config.ts` 的 `appTitle`、`timeline` 年代範圍與 `map` 初始視角。
+2. 清空種子：把 `events.json` 設為 `[]`、`timeline.json` 設為 `[]`。
+3. 用 `add-period` 逐一建立主題分期。
+4. 用 `add-event` 逐一（或迴圈批次）灌入事件。
+5. 執行 `npm run test:data` 自我檢查，全綠後 `npm start` 驗證互動。
