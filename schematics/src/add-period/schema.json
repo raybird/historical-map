@@ -1,0 +1,1 @@
+{ "$schema": "http://json-schema.org/schema", "$id": "AddPeriod", "title": "add-period", "type": "object", "properties": {} }

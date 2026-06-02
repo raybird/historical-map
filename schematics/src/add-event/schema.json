@@ -1,0 +1,1 @@
+{ "$schema": "http://json-schema.org/schema", "$id": "AddEvent", "title": "add-event", "type": "object", "properties": {} }
