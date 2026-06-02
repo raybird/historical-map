@@ -1,0 +1,13 @@
+export interface HistoricalMapConfig {
+  appTitle: string;
+  timeline: { minYear: number; maxYear: number; pixelsPerYear: number };
+}
+
+export const historicalMapConfig: HistoricalMapConfig = {
+  appTitle: '<%= appTitle %>',
+  timeline: {
+    minYear: <%= minYear %>,
+    maxYear: <%= maxYear %>,
+    pixelsPerYear: <%= pixelsPerYear %>,
+  },
+};

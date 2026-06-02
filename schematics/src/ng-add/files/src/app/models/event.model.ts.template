@@ -1,0 +1,26 @@
+export interface EventLocation {
+  name: string;
+  coordinates: [number, number]; // [lat, lng]
+  adminDivisions: string[];
+}
+
+export interface EventDate {
+  start: string;
+  end: string;
+  period: string;
+  periodId: string;
+}
+
+export interface HistoricalEventBase {
+  id: string;
+  title: string;
+  description: string;
+  date: EventDate;
+  location: EventLocation;
+  categories: string[];
+  keywords: string[];
+  relatedEvents: string[];
+}
+
+// 各專案在此擴充主題專屬欄位；`ng generate add-extension-field` 會操作此介面。
+export interface HistoricalEvent extends HistoricalEventBase {}
