@@ -1,1 +1,44 @@
-{ "$schema": "http://json-schema.org/schema", "$id": "HistoricalMapNgAdd", "title": "ng-add", "type": "object", "properties": {} }
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "HistoricalMapNgAdd",
+  "title": "Historical Map ng-add options",
+  "type": "object",
+  "properties": {
+    "appTitle": {
+      "type": "string",
+      "description": "Application title shown in the header",
+      "default": "Historical Map",
+      "x-prompt": "App 標題？"
+    },
+    "minYear": {
+      "type": "number",
+      "description": "Earliest year on the timeline (negative = BCE)",
+      "default": -5000,
+      "x-prompt": "時間軸最早年份（負值為西元前）？"
+    },
+    "maxYear": {
+      "type": "number",
+      "description": "Latest year on the timeline",
+      "default": 2025,
+      "x-prompt": "時間軸最晚年份？"
+    },
+    "pixelsPerYear": {
+      "type": "number",
+      "description": "Horizontal pixels per year",
+      "default": 5,
+      "x-prompt": "時間軸每年像素？"
+    },
+    "includeSampleData": {
+      "type": "boolean",
+      "description": "Seed a runnable demo dataset",
+      "default": true,
+      "x-prompt": "附帶可運作的展示種子資料？"
+    },
+    "project": {
+      "type": "string",
+      "description": "Target Angular project name",
+      "$default": { "$source": "projectName" }
+    }
+  },
+  "required": []
+}
