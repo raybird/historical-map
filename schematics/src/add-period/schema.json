@@ -1,1 +1,15 @@
-{ "$schema": "http://json-schema.org/schema", "$id": "AddPeriod", "title": "add-period", "type": "object", "properties": {} }
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "AddPeriod",
+  "title": "Add Period",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "x-prompt": "分期 id（唯一）？" },
+    "label": { "type": "string", "x-prompt": "分期名稱？" },
+    "startYear": { "type": "number", "x-prompt": "起始年（負值為西元前）？" },
+    "endYear": { "type": "number", "x-prompt": "結束年？" },
+    "color": { "type": "string", "default": "#4169E1", "x-prompt": "顏色（hex）？" },
+    "description": { "type": "string", "default": "", "x-prompt": "描述？" }
+  },
+  "required": ["id", "label", "startYear", "endYear"]
+}
