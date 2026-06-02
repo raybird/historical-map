@@ -1,1 +1,23 @@
-{ "$schema": "http://json-schema.org/schema", "$id": "AddEvent", "title": "add-event", "type": "object", "properties": {} }
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "AddEvent",
+  "title": "Add Event",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "x-prompt": "事件 id（唯一）？" },
+    "title": { "type": "string", "x-prompt": "標題？" },
+    "description": { "type": "string", "default": "", "x-prompt": "描述？" },
+    "start": { "type": "string", "x-prompt": "起始年（字串，負值為西元前）？" },
+    "end": { "type": "string", "x-prompt": "結束年？" },
+    "period": { "type": "string", "default": "", "x-prompt": "分期顯示名稱？" },
+    "periodId": { "type": "string", "x-prompt": "分期 id（須存在於 timeline.json）？" },
+    "locationName": { "type": "string", "x-prompt": "地點名稱？" },
+    "lat": { "type": "number", "x-prompt": "緯度 lat？" },
+    "lng": { "type": "number", "x-prompt": "經度 lng？" },
+    "adminDivisions": { "type": "string", "default": "", "description": "comma-separated" },
+    "categories": { "type": "string", "default": "", "description": "comma-separated" },
+    "keywords": { "type": "string", "default": "", "description": "comma-separated" },
+    "relatedEvents": { "type": "string", "default": "", "description": "comma-separated" }
+  },
+  "required": ["id", "title", "start", "end", "periodId", "locationName", "lat", "lng"]
+}
