@@ -1,1 +1,12 @@
-{ "$schema": "http://json-schema.org/schema", "$id": "AddExtensionField", "title": "add-extension-field", "type": "object", "properties": {} }
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "AddExtensionField",
+  "title": "Add Extension Field",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "x-prompt": "欄位名稱？" },
+    "fieldType": { "type": "string", "default": "string", "x-prompt": "型別（如 string、string[]、number）？" },
+    "optional": { "type": "boolean", "default": true, "x-prompt": "是否為選擇性（?）？" }
+  },
+  "required": ["name"]
+}
