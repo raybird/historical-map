@@ -4,6 +4,10 @@
   "description": "Angular schematics for building interactive historical map apps",
   "schematics": "./src/collection.json",
   "ng-add": { "save": "devDependencies" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-templates.mjs",
+    "prepublishOnly": "npm run build"
+  },
   "dependencies": {
     "@angular-devkit/core": "^20.3.0",
     "@angular-devkit/schematics": "^20.3.0",
