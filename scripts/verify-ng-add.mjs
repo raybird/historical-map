@@ -17,7 +17,7 @@ function run(cmd, cwd) {
 
 run('npm install', tmp);
 run(`npm install ${path.join(root, 'schematics')}`, tmp);
-run('npx ng add @kevin/historical-map-schematics --skip-confirmation ' +
+run('npx ng add @raybird/historical-map-schematics --skip-confirmation ' +
     '--appTitle="Demo Map" --minYear=-3000 --maxYear=2025 --pixelsPerYear=5 --includeSampleData', tmp);
 run('npm run test:data', tmp);
 run('npm run build', tmp);

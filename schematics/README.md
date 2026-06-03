@@ -1,4 +1,4 @@
-# @kevin/historical-map-schematics
+# @raybird/historical-map-schematics
 
 Angular Schematics：一鍵搭建「歷史事件 × 地圖」可互動體驗的 Angular 專案，並提供非互動產生器，讓人與 AI agent 共用同一套安全寫入指令快速依主題灌入資料。
 
@@ -7,7 +7,7 @@ Angular Schematics：一鍵搭建「歷史事件 × 地圖」可互動體驗的 
 於既有 Angular 20 workspace：
 
 ```bash
-ng add @kevin/historical-map-schematics
+ng add @raybird/historical-map-schematics
 ```
 
 產生模型、NgRx store、services、5 個元件 + app 元件、集中設定檔（`src/app/historical-map.config.ts`）、種子資料與資料驗證 script，並安裝 `@ngrx/store`、`fuse.js`、`leaflet`。
@@ -23,10 +23,10 @@ ng add @kevin/historical-map-schematics
 | `add-extension-field` | 為 `HistoricalEvent` 新增延伸欄位 | `--name` |
 
 ```bash
-ng generate @kevin/historical-map-schematics:add-period \
+ng generate @raybird/historical-map-schematics:add-period \
   --id=ming --label=明朝 --start-year=1368 --end-year=1644 --interactive=false
 
-ng generate @kevin/historical-map-schematics:add-event \
+ng generate @raybird/historical-map-schematics:add-event \
   --id=ming-001 --title=靖難之役 --start=1399 --end=1402 \
   --period-id=ming --location-name=南京 --lat=32.06 --lng=118.80 --interactive=false
 ```
@@ -41,8 +41,8 @@ npm run build            # 編譯 + 複製模板
 npm link
 
 # 目標 Angular 專案
-npm link @kevin/historical-map-schematics
-ng add @kevin/historical-map-schematics
+npm link @raybird/historical-map-schematics
+ng add @raybird/historical-map-schematics
 ```
 
 ## 發佈（npm publish）

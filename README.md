@@ -16,7 +16,7 @@ Angular Schematics 一鍵搭建「歷史事件 × 地圖」可互動體驗的 An
 在既有 Angular 20 workspace 中執行：
 
 ```bash
-ng add @kevin/historical-map-schematics
+ng add @raybird/historical-map-schematics
 ```
 
 會建立模型、NgRx store、services、5 個元件 + app 元件、集中設定檔、種子資料與驗證 script，並安裝相依（`@ngrx/store`、`fuse.js`、`leaflet`）。
@@ -41,7 +41,7 @@ ng add @kevin/historical-map-schematics
 ### add-period — 新增分期
 
 ```bash
-ng generate @kevin/historical-map-schematics:add-period \
+ng generate @raybird/historical-map-schematics:add-period \
   --id=ming --label=明朝 --start-year=1368 --end-year=1644 \
   --color=#C8102E --description=明朝 --interactive=false
 ```
@@ -51,7 +51,7 @@ ng generate @kevin/historical-map-schematics:add-period \
 ### add-event — 新增事件
 
 ```bash
-ng generate @kevin/historical-map-schematics:add-event \
+ng generate @raybird/historical-map-schematics:add-event \
   --id=ming-001 --title=靖難之役 --description=... --start=1399 --end=1402 \
   --period=明朝 --period-id=ming --location-name=南京 --lat=32.06 --lng=118.80 \
   --categories=軍事,政治 --keywords=朱棣,建文帝 --interactive=false
@@ -64,7 +64,7 @@ ng generate @kevin/historical-map-schematics:add-event \
 ### add-extension-field — 為事件模型新增延伸欄位
 
 ```bash
-ng generate @kevin/historical-map-schematics:add-extension-field \
+ng generate @raybird/historical-map-schematics:add-extension-field \
   --name=factions --field-type=string[] --optional=true --interactive=false
 ```
 

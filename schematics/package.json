@@ -1,5 +1,5 @@
 {
-  "name": "@kevin/historical-map-schematics",
+  "name": "@raybird/historical-map-schematics",
   "version": "0.0.1",
   "description": "Angular schematics for building interactive historical map apps",
   "schematics": "./src/collection.json",
