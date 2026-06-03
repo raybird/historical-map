@@ -21,13 +21,14 @@
 
 ```bash
 # 新增分期（非互動，供 agent 批次）
+# 注意：多字選項在命令列須用 kebab-case（如 --start-year）
 ng generate @kevin/historical-map-schematics:add-period \
-  --id=ming --label=明朝 --startYear=1368 --endYear=1644 --color=#C8102E --description="明朝" --interactive=false
+  --id=ming --label=明朝 --start-year=1368 --end-year=1644 --color=#C8102E --description="明朝" --interactive=false
 
 # 新增事件（非互動）
 ng generate @kevin/historical-map-schematics:add-event \
   --id=ming-001 --title=靖難之役 --description=... --start=1399 --end=1402 \
-  --period=明朝 --periodId=ming --locationName=南京 --lat=32.06 --lng=118.80 \
+  --period=明朝 --period-id=ming --location-name=南京 --lat=32.06 --lng=118.80 \
   --categories=軍事,政治 --keywords=朱棣,建文帝 --interactive=false
 ```
 
