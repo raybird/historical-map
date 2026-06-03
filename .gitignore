@@ -6,3 +6,4 @@ example-app/.angular/
 example-app/dist/
 *.log
 .tmp-verify/
+.serena/
