@@ -1,5 +1,7 @@
 # Historical Map Schematics
 
+> GitHub：https://github.com/raybird/historical-map
+
 Angular Schematics 一鍵搭建「歷史事件 × 地圖」可互動體驗的 Angular 專案，再由 AI agent 依主題快速灌入 JSON 資料。
 
 - 資料驅動：事件與分期分別存於 `public/assets/data/events.json`、`timeline.json`
