@@ -11,6 +11,32 @@ Angular Schematics 一鍵搭建「歷史事件 × 地圖」可互動體驗的 An
 
 完整設計與規劃見 `docs/superpowers/specs/` 與 `docs/superpowers/plans/`。
 
+## 靈感來源
+
+本專案是把兩個既有姊妹專案的共同骨架抽成可重複生成的 Schematics：
+
+- [raybird/cap-map](https://github.com/raybird/cap-map) — 臺灣史主題（架構基準）
+- [raybird/three-kingdoms-map](https://github.com/raybird/three-kingdoms-map) — 三國主題
+
+兩者是同一套架構（Angular 20 + NgRx 20 + Leaflet + Fuse.js）的不同主題版本，骨架完全相同，僅「主題資料、模型延伸欄位、年代範圍」在變。本專案把這套骨架抽出，並順手修正來源專案把年代常數散落硬編碼的問題（改為集中設定）。
+
+## 適用情境與選用建議
+
+✅ **推薦使用**，當你符合：
+
+- 要做「**時間 × 地理位置**」類的互動展示（歷史事件、地圖標記、時間軸、搜尋側欄）
+- 預期會做**多個不同主題的版本**，而非只做一個
+- 想讓 **AI agent 批次灌資料**——本專案最大價值在此：產生器 + 統一驗證閘門，人與 AI 走同一條安全路徑
+- 接受既定技術棧 **Angular 20 + standalone + NgRx + Leaflet + Fuse.js**
+
+❌ **不推薦**，當你：
+
+- 只做**單一個**地圖應用——直接寫一個專案更快，不值得付出 Schematics 的維護成本
+- 技術棧不同——上述選型寫死在模板中，無法替換
+- 需求偏離「事件 × 地圖 × 時間軸」資料模型——核心結構（座標、period、date range）固定，僅能透過 `add-extension-field` 增補欄位
+
+> 與來源專案架構緊耦合：當 cap-map / three-kingdoms-map 或 Angular/NgRx 大版本演進時，模板需手動跟進。倉庫內的 `example-app` + `npm run verify` 即為升級時抓回歸用的端到端驗證靶。
+
 ## 一、初始化專案（ng add）
 
 在既有 Angular 20 workspace 中執行：
