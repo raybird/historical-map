@@ -52,6 +52,15 @@ describe('ng-add', () => {
     expect(main).toContain('app.component');
     expect(main).toContain('AppComponent');
     expect(tree.exists('/src/app/app.ts')).toBe(false);
+
+    const cfgSearch = tree.readContent('/src/app/historical-map.config.ts');
+    expect(cfgSearch).toContain('filterField');
+    expect(cfgSearch).toContain("filterField: 'categories'");
+
+    const searchBar = tree.readContent('/src/app/search-bar/search-bar.component.ts');
+    expect(searchBar).not.toContain('TEXTBOOK_OPTIONS');
+    expect(searchBar).not.toContain('textbookReferences');
+    expect(searchBar).toContain('historicalMapConfig');
   });
 
   it('writes empty data arrays when includeSampleData is false', async () => {
