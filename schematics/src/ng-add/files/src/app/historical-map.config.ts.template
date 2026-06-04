@@ -2,6 +2,7 @@ export interface HistoricalMapConfig {
   appTitle: string;
   timeline: { minYear: number; maxYear: number; pixelsPerYear: number };
   map: { center: [number, number]; zoom: number };
+  search: { filterField: string; filterLabel: string };
 }
 
 export const historicalMapConfig: HistoricalMapConfig = {
@@ -15,5 +16,11 @@ export const historicalMapConfig: HistoricalMapConfig = {
   map: {
     center: [20, 30],
     zoom: 2,
+  },
+  // 搜尋篩選面板：選項自動從事件資料的 filterField 欄位衍生（支援嵌套點路徑，
+  // 如 'examRelevance.textbookReferences'）。衍生選項為空時面板自動隱藏。
+  search: {
+    filterField: 'categories',
+    filterLabel: '分類篩選',
   },
 };
