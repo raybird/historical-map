@@ -1,13 +1,13 @@
 <div class="search-box-container">
-  <div class="search-input-wrapper" [class.has-chips]="selectedTextbooks.length > 0">
+  <div class="search-input-wrapper" [class.has-chips]="selectedFilters.length > 0">
     <span class="search-icon">🔍</span>
 
-    @for (tb of selectedTextbooks; track tb) {
+    @for (f of selectedFilters; track f) {
       <span
         class="filter-chip"
         (mousedown)="$event.preventDefault()"
-        (click)="removeTextbook(tb)">
-        {{ getLabel(tb) }}
+        (click)="removeFilter(f)">
+        {{ f }}
         <span class="filter-chip-remove">✕</span>
       </span>
     }
@@ -16,41 +16,43 @@
       type="text"
       class="search-input"
       id="search-input"
-      [placeholder]="selectedTextbooks.length > 0 ? '輸入關鍵字進一步篩選...' : '輸入關鍵字搜尋事件...'"
+      [placeholder]="selectedFilters.length > 0 ? '輸入關鍵字進一步篩選...' : '輸入關鍵字搜尋事件...'"
       (input)="onSearch($event)"
       (focus)="onFocus()"
       autocomplete="off"
     />
 
-    <button
-      type="button"
-      class="filter-toggle-btn"
-      [class.active]="showFilterPanel"
-      (mousedown)="$event.preventDefault()"
-      (click)="toggleFilterPanel($event)"
-      title="課本範圍篩選">
-      <svg class="book-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20M4 19.5C4 20.163 4.26339 20.7989 4.73223 21.2678C5.20107 21.7366 5.83696 22 6.5 22H20M4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2H20V17H6.5C5.83696 17 5.20107 17.2634 4.73223 17.7322C4.26339 18.2011 4 18.837 4 19.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
+    @if (filterOptions.length > 0) {
+      <button
+        type="button"
+        class="filter-toggle-btn"
+        [class.active]="showFilterPanel"
+        (mousedown)="$event.preventDefault()"
+        (click)="toggleFilterPanel($event)"
+        [title]="filterLabel">
+        <svg class="book-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20M4 19.5C4 20.163 4.26339 20.7989 4.73223 21.2678C5.20107 21.7366 5.83696 22 6.5 22H20M4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2H20V17H6.5C5.83696 17 5.20107 17.2634 4.73223 17.7322C4.26339 18.2011 4 18.837 4 19.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    }
 
-    @if (searchResults.length > 0 || queryText || selectedTextbooks.length > 0) {
+    @if (searchResults.length > 0 || queryText || selectedFilters.length > 0) {
       <button class="clear-button" (click)="clearSearch()">×</button>
     }
   </div>
 
-  <!-- 課本篩選面板（focus + 無文字） -->
-  @if (showFilterPanel) {
+  <!-- 篩選面板（選項自動從資料衍生，欄位由 config.search.filterField 決定） -->
+  @if (showFilterPanel && filterOptions.length > 0) {
     <div class="filter-panel">
-      <div class="filter-panel-header">課本範圍篩選</div>
+      <div class="filter-panel-header">{{ filterLabel }}</div>
       <div class="filter-chip-grid">
-        @for (opt of textbookOptions; track opt.value) {
+        @for (opt of filterOptions; track opt) {
           <button
             class="filter-option"
-            [class.selected]="isTextbookSelected(opt.value)"
+            [class.selected]="isFilterSelected(opt)"
             (mousedown)="$event.preventDefault()"
-            (click)="toggleTextbook(opt.value)">
-            {{ opt.label }}
+            (click)="toggleFilter(opt)">
+            {{ opt }}
           </button>
         }
       </div>
@@ -64,7 +66,7 @@
         <h4>搜尋結果</h4>
         <span class="result-count">
           {{ searchResults.length }} 個結果
-          @if (selectedTextbooks.length > 0) {
+          @if (selectedFilters.length > 0) {
             <span class="filter-active-badge">已套用篩選</span>
           }
         </span>

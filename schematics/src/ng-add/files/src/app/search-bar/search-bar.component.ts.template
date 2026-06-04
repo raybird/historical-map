@@ -7,16 +7,7 @@ import * as MapActions from '../store/actions/map.actions';
 import * as EventSelectors from '../store/selectors/event.selectors';
 import { Subscription, Observable } from 'rxjs';
 import Fuse from 'fuse.js';
-
-const TEXTBOOK_OPTIONS = [
-  { label: '七上 臺灣史', value: '社會科七年級上冊 臺灣史' },
-  { label: '七下 臺灣史', value: '社會科七年級下冊 臺灣史' },
-  { label: '七上 地理',   value: '社會科七年級上冊 地理' },
-  { label: '八上 中國史', value: '社會科八年級上冊 中國史' },
-  { label: '八上 地理',   value: '社會科八年級上冊 地理' },
-  { label: '八下 世界史', value: '社會科八年級下冊 世界史' },
-  { label: '九下 臺灣史', value: '社會科九年級下冊 臺灣近現代史' },
-];
+import { historicalMapConfig } from '../historical-map.config';
 
 @Component({
   selector: 'app-search-bar',
@@ -36,8 +27,11 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   queryText = '';
   showFilterPanel = false;
 
-  textbookOptions = TEXTBOOK_OPTIONS;
-  selectedTextbooks: string[] = [];
+  // 篩選面板：選項自動從事件資料衍生，欄位與標題由 config 設定。
+  readonly filterField = historicalMapConfig.search.filterField;
+  readonly filterLabel = historicalMapConfig.search.filterLabel;
+  filterOptions: string[] = [];
+  selectedFilters: string[] = [];
 
   private allEvents: any[] = [];
   private subscriptions: Subscription[] = [];
@@ -56,6 +50,7 @@ export class SearchBarComponent implements OnInit, OnDestroy {
       if (events.length > 0) {
         this.allEvents = events;
         this.initializeFuse(events);
+        this.buildFilterOptions(events);
       }
     });
     this.subscriptions.push(eventsSub);
@@ -74,6 +69,26 @@ export class SearchBarComponent implements OnInit, OnDestroy {
       keys: ['title', 'description', 'keywords'],
       threshold: 0.3
     });
+  }
+
+  // 解析點路徑（支援嵌套欄位），將結果（陣列或純量）正規化為 string[]。
+  private getFieldValues(event: any, path: string): string[] {
+    const raw = path.split('.').reduce(
+      (acc: any, key: string) => (acc == null ? acc : acc[key]),
+      event
+    );
+    if (raw == null) return [];
+    return (Array.isArray(raw) ? raw : [raw]).map(v => String(v));
+  }
+
+  private buildFilterOptions(events: any[]): void {
+    const set = new Set<string>();
+    for (const e of events) {
+      for (const v of this.getFieldValues(e, this.filterField)) {
+        set.add(v);
+      }
+    }
+    this.filterOptions = Array.from(set).sort();
   }
 
   onSearch(event: Event): void {
@@ -102,27 +117,23 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleTextbook(value: string): void {
-    const idx = this.selectedTextbooks.indexOf(value);
+  toggleFilter(value: string): void {
+    const idx = this.selectedFilters.indexOf(value);
     if (idx > -1) {
-      this.selectedTextbooks.splice(idx, 1);
+      this.selectedFilters.splice(idx, 1);
     } else {
-      this.selectedTextbooks.push(value);
+      this.selectedFilters.push(value);
     }
     this.runSearch();
   }
 
-  removeTextbook(value: string): void {
-    this.selectedTextbooks = this.selectedTextbooks.filter(v => v !== value);
+  removeFilter(value: string): void {
+    this.selectedFilters = this.selectedFilters.filter(v => v !== value);
     this.runSearch();
   }
 
-  isTextbookSelected(value: string): boolean {
-    return this.selectedTextbooks.includes(value);
-  }
-
-  getLabel(value: string): string {
-    return TEXTBOOK_OPTIONS.find(o => o.value === value)?.label ?? value;
+  isFilterSelected(value: string): boolean {
+    return this.selectedFilters.includes(value);
   }
 
   selectEvent(eventId: string): void {
@@ -136,12 +147,12 @@ export class SearchBarComponent implements OnInit, OnDestroy {
     const input = document.querySelector('#search-input') as HTMLInputElement;
     if (input) input.value = '';
     this.queryText = '';
-    this.selectedTextbooks = [];
+    this.selectedFilters = [];
     this.searchResults = [];
   }
 
   private runSearch(): void {
-    if (!this.queryText && this.selectedTextbooks.length === 0) {
+    if (!this.queryText && this.selectedFilters.length === 0) {
       this.searchResults = [];
       return;
     }
@@ -153,12 +164,11 @@ export class SearchBarComponent implements OnInit, OnDestroy {
       results = [...this.allEvents];
     }
 
-    if (this.selectedTextbooks.length > 0) {
-      results = results.filter(e =>
-        this.selectedTextbooks.some(tb =>
-          e.examRelevance?.textbookReferences?.includes(tb)
-        )
-      );
+    if (this.selectedFilters.length > 0) {
+      results = results.filter(e => {
+        const values = this.getFieldValues(e, this.filterField);
+        return this.selectedFilters.some(f => values.includes(f));
+      });
     }
 
     this.searchResults = results;
