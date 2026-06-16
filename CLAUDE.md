@@ -22,9 +22,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm run build:schematics   # tsc 編譯 schematics + 檢查 schema/template 齊全
 npm run test:schematics    # 先 build 再用 jasmine 跑單元測試
-npm run verify             # 對 example-app 跑 ng add 並建置（SC-1 端到端驗證）
-node scripts/verify-theme-swap.mjs  # 清種子後用產生器換主題並建置（SC-2，須先跑過 npm run verify）
+npm run verify             # 把 example-app 複製到 .tmp-verify，npm install + 裝本地 schematics + ng add + test:data + build（SC-1）
+node scripts/verify-theme-swap.mjs  # 清種子後用產生器換主題並建置（SC-2，重用上一步的 .tmp-verify，故須先跑過 npm run verify）
 ```
+
+> `.tmp-verify/`（已 gitignore）是兩個 verify 腳本共用的沙箱：`verify` 每次重建它，`verify-theme-swap` 直接沿用，不會碰到原始 `example-app`。
 
 跑單一測試檔：先 `npm run build:schematics`，再直接指定編譯後的 spec：
 ```bash
